@@ -1,31 +1,35 @@
 import { useDeferredValue, useState } from 'react'
-import { Input, Button, ErrorMsg } from '@features/common/components'
+import { Input, Button, ErrorMsg } from '@/features/common/components'
 
 interface PhoneNumberProps {
   phoneNumber: string
   setPhoneNumber: (phoneNumber: string) => void
   isLoading: boolean
-  sendVerificationCode: () => Promise<void>
+  sendVerificationCode: (phoneNumber: string) => Promise<void>
+  error: string
+  reset: () => void
 }
 
 export const PhoneNumber = ({
   phoneNumber,
   setPhoneNumber,
   isLoading,
-  sendVerificationCode
+  sendVerificationCode,
+  error,
+  reset
 }: PhoneNumberProps) => {
   const [errorMsg, setErrorMsg] = useState('')
   const deferredQuery = useDeferredValue(phoneNumber)
+  const hasError = errorMsg !== '' || error !== ''
   return (
     <div className='form-group' style={{ flex: 1 }}>
       <Input
         value={phoneNumber}
         maxLength={13}
         onChange={(e) => {
+          if (error) reset()
           if (errorMsg === '' && isValidPhoneFormat(e.target.value) === false)
-            setErrorMsg(
-              '휴대폰 번호 형식이 올바르지 않습니다. 예: 010-1234-5678'
-            )
+            setErrorMsg('올바른 번호를 입력해주세요.')
           if (isValidPhoneFormat(e.target.value) && errorMsg !== '')
             setErrorMsg('')
           e.target.value = e.target.value.replace(/[^0-9-]/g, '')
@@ -35,11 +39,11 @@ export const PhoneNumber = ({
         placeholder='휴대폰 번호를 입력해주세요.'
       />
       <div style={{ height: '1.5rem' }}>
-        <ErrorMsg errorMsg={errorMsg} />
+        <ErrorMsg errorMsg={error || errorMsg} />
       </div>
       <Button
-        onClick={sendVerificationCode}
-        disabled={isLoading || !isValidPhoneFormat(deferredQuery)}
+        onClick={() => sendVerificationCode(phoneNumber)}
+        disabled={isLoading || !isValidPhoneFormat(deferredQuery) || hasError}
         className='send-button'
         buttonText={isLoading ? '전송 중...' : '인증번호 발송'}
       />
@@ -48,7 +52,7 @@ export const PhoneNumber = ({
 }
 
 const isValidPhoneFormat = (value: string) => {
-  const PHONE_REGEX = /^\d{3}-(\d{3}|\d{4})-\d{4}$/
+  const PHONE_REGEX = /^010-(\d{3}|\d{4})-\d{4}$/
   return PHONE_REGEX.test(value)
 }
 

@@ -1,95 +1,29 @@
 import { useState } from 'react'
 import './App.css'
-import { PhoneNumber, VerificationCode } from '@features/auth/components'
-interface VerificationResponse {
-  success: boolean
-  message: string
-  data?: {
-    phoneNumber?: string
-    expiresAt?: number
-    verified?: boolean
-  }
-}
+import { PhoneNumber, VerificationCode } from '@/features/auth/components'
+import { MSG_TYPE } from '@/features/auth/type'
+import { useSendVerificationCode, useVerifyCode } from '@/features/auth/hooks'
 
 function App() {
   const [phoneNumber, setPhoneNumber] = useState('')
   const [verificationCode, setVerificationCode] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success')
 
-  const sendVerificationCode = async () => {
-    if (!phoneNumber) {
-      setMessage('휴대폰 번호를 입력해주세요.')
-      setMessageType('error')
-      return
-    }
+  const {
+    isSent,
+    sendVerificationCode,
+    isLoading: isPhoneNumberSent,
+    error,
+    reset
+  } = useSendVerificationCode()
 
-    setIsLoading(true)
-    setMessage('')
-
-    try {
-      const response = await fetch('/api/auth/send-verification', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ phoneNumber })
-      })
-
-      const data: VerificationResponse = await response.json()
-
-      if (data.success) {
-        setMessage(data.message)
-        setMessageType('success')
-      } else {
-        setMessage(data.message)
-        setMessageType('error')
-      }
-    } catch {
-      setMessage('서버 오류가 발생했습니다.')
-      setMessageType('error')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const verifyCode = async () => {
-    if (!phoneNumber || !verificationCode) {
-      setMessage('휴대폰 번호와 인증번호를 입력해주세요.')
-      setMessageType('error')
-      return
-    }
-
-    setIsLoading(true)
-    setMessage('')
-
-    try {
-      const response = await fetch('/api/auth/verify-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ phoneNumber, code: verificationCode })
-      })
-
-      const data: VerificationResponse = await response.json()
-
-      if (data.success) {
-        setMessage(data.message)
-        setMessageType('success')
-        setVerificationCode('')
-      } else {
-        setMessage(data.message)
-        setMessageType('error')
-      }
-    } catch {
-      setMessage('서버 오류가 발생했습니다.')
-      setMessageType('error')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const {
+    isLoading,
+    verifyCode,
+    isVerified,
+    message,
+    error: verifyCodeError,
+    resetVerifyCodeError
+  } = useVerifyCode()
 
   return (
     <div className='app'>
@@ -99,22 +33,33 @@ function App() {
       <div className='form-container'>
         <PhoneNumber
           phoneNumber={phoneNumber}
+          error={error}
+          reset={reset}
           setPhoneNumber={setPhoneNumber}
-          isLoading={isLoading}
           sendVerificationCode={sendVerificationCode}
+          isLoading={isPhoneNumberSent}
         />
-
-        {
+        {isSent && (
           <VerificationCode
+            resetVerifyCode={resetVerifyCodeError}
+            isVerified={isVerified}
+            verifyCodeError={verifyCodeError}
             verificationCode={verificationCode}
             setVerificationCode={setVerificationCode}
-            hasPhoneNumber={!phoneNumber}
+            phoneNumber={phoneNumber}
             isLoading={isLoading}
             verifyCode={verifyCode}
           />
-        }
-
-        {message && <div className={`message ${messageType}`}>{message}</div>}
+        )}
+        {message && (
+          <div
+            className={`message ${
+              isVerified ? MSG_TYPE.SUCCESS : MSG_TYPE.ERROR
+            }`}
+          >
+            {message}
+          </div>
+        )}
       </div>
 
       <div className='info'>

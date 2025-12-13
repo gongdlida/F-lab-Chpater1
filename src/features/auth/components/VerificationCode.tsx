@@ -1,22 +1,27 @@
-import { useDeferredValue } from 'react'
-import { Input, Button } from '@features/common/components'
+import { Input, Button } from '@/features/common/components'
+import type { VerifyCodeParamsType } from '@/features/auth/type'
 
 interface VerificationCodeProps {
   verificationCode: string
-  hasPhoneNumber: boolean
+  phoneNumber: string
   setVerificationCode: (verificationCode: string) => void
   isLoading: boolean
-  verifyCode: () => Promise<void>
+  verifyCode: (params: VerifyCodeParamsType) => Promise<void>
+  isVerified: boolean
+  verifyCodeError: boolean
+  resetVerifyCode: () => void
 }
 
 export const VerificationCode = ({
   verificationCode,
   setVerificationCode,
   isLoading,
-  hasPhoneNumber,
-  verifyCode
+  phoneNumber,
+  verifyCode,
+  isVerified,
+  verifyCodeError,
+  resetVerifyCode
 }: VerificationCodeProps) => {
-  const deferredQuery = useDeferredValue(verificationCode)
   return (
     <div
       className='form-group'
@@ -31,14 +36,20 @@ export const VerificationCode = ({
         type='text'
         value={verificationCode}
         onChange={(e) => {
+          if (verifyCodeError) resetVerifyCode()
           e.target.value = e.target.value.replace(/[^0-9]/g, '')
           setVerificationCode(e.target.value)
         }}
       />
 
       <Button
-        onClick={verifyCode}
-        disabled={isLoading || hasPhoneNumber || !isValidCode(deferredQuery)}
+        onClick={() => verifyCode({ code: verificationCode, phoneNumber })}
+        disabled={
+          isLoading ||
+          !isValidCode(verificationCode) ||
+          isVerified ||
+          verifyCodeError
+        }
         className='verify-button'
         buttonText={isLoading ? '확인 중...' : '인증번호 확인'}
       />
