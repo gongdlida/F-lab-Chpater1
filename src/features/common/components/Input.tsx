@@ -1,5 +1,5 @@
 import type { ChangeEvent, InputHTMLAttributes } from 'react'
-import { ErrorMsg } from '@features/common/components'
+import { ErrorMsg } from '@/features/common/components'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
