@@ -15,7 +15,7 @@ export const http = {
     })
 
     if (!response.ok) {
-      throw new Error(response.statusText)
+      console.error(response)
     }
 
     return response.json() as Promise<CommonResponse<Res>>
@@ -37,7 +37,7 @@ export const http = {
     })
 
     if (!response.ok) {
-      throw new Error(response.statusText)
+      console.error(response)
     }
 
     return response.json() as Promise<CommonResponse<Res>>
