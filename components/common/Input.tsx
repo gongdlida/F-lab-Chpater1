@@ -4,14 +4,14 @@ import { ErrorMsg } from '../common/ErrorMsg'
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
   value: HTMLInputElement['value']
-  onChnage: (e: ChangeEvent<HTMLInputElement>) => void
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void
   disabled?: boolean
   errorMsg?: string
 }
 
 export const Input = ({
   value,
-  onChnage,
+  onChange,
   disabled = false,
   errorMsg,
   label,
@@ -24,7 +24,7 @@ export const Input = ({
         id={label}
         type='text'
         value={value}
-        onChange={onChnage}
+        onChange={onChange}
         disabled={disabled}
         {...props}
       />

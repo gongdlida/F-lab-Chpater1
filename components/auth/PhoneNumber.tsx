@@ -21,7 +21,7 @@ export const PhoneNumber = ({
       <Input
         value={phoneNumber}
         maxLength={13}
-        onChnage={(e) => {
+        onChange={(e) => {
           if (errorMsg === '' && isValidPhoneFormat(e.target.value) === false)
             setErrorMsg(
               '휴대폰 번호 형식이 올바르지 않습니다. 예: 010-1234-5678'
