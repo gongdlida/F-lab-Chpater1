@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './App.css'
-import { PhoneNumber } from '../components/auth'
+import { PhoneNumber, VerificationCode } from '../components/auth'
 interface VerificationResponse {
   success: boolean
   message: string
@@ -104,28 +104,15 @@ function App() {
           sendVerificationCode={sendVerificationCode}
         />
 
-        <div className='form-group'>
-          <label htmlFor='verificationCode'>인증번호:</label>
-          <input
-            id='verificationCode'
-            type='text'
-            value={verificationCode}
-            onChange={(e) => setVerificationCode(e.target.value)}
-            placeholder='6자리 인증번호'
-            disabled={isLoading}
-            maxLength={6}
+        {
+          <VerificationCode
+            verificationCode={verificationCode}
+            setVerificationCode={setVerificationCode}
+            hasPhoneNumber={!phoneNumber}
+            isLoading={isLoading}
+            verifyCode={verifyCode}
           />
-        </div>
-
-        <div className='button-group'>
-          <button
-            onClick={verifyCode}
-            disabled={isLoading || !phoneNumber || !verificationCode}
-            className='verify-button'
-          >
-            {isLoading ? '확인 중...' : '인증번호 확인'}
-          </button>
-        </div>
+        }
 
         {message && <div className={`message ${messageType}`}>{message}</div>}
       </div>
