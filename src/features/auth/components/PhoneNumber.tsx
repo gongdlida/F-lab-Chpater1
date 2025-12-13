@@ -1,5 +1,5 @@
 import { useDeferredValue, useState } from 'react'
-import { Input, Button, ErrorMsg } from '../common'
+import { Input, Button, ErrorMsg } from '@features/common/components'
 
 interface PhoneNumberProps {
   phoneNumber: string

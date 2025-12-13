@@ -1,5 +1,5 @@
 import { useDeferredValue } from 'react'
-import { Input, Button } from '../common'
+import { Input, Button } from '@features/common/components'
 
 interface VerificationCodeProps {
   verificationCode: string

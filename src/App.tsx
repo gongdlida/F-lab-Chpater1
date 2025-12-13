@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './App.css'
-import { PhoneNumber, VerificationCode } from '../components/auth'
+import { PhoneNumber, VerificationCode } from '@features/auth/components'
 interface VerificationResponse {
   success: boolean
   message: string
