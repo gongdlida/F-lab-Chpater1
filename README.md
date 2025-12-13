@@ -1,69 +1,109 @@
-# React + TypeScript + Vite
+### 과제 설명
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+아래와 같은 2단계 휴대폰 인증 화면을 구현해주세요.
 
-Currently, two official plugins are available:
+#### 1단계: 휴대폰 번호 입력
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 사용자에게 휴대폰 번호를 입력받습니다.
+- 입력 형식은 010-XXXX-XXXX 형식으로 제한합니다.
+- 형식이 맞지 않으면 “올바른 번호를 입력해주세요” 경고 문구를 보여줍니다.
+- 유효한 번호가 입력되면 "인증번호 요청" 버튼을 활성화하고, 버튼을 누르면 다음 단계로 이동합니다.
 
-## Expanding the ESLint configuration
+#### 2단계: 인증번호 입력
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 인증번호 입력 필드를 보여줍니다.
+- 인증번호를 입력하고 "확인" 버튼을 누르면:
+- 인증번호가 맞으면 "인증되었습니다!" 메시지를 보여줍니다.
+- 틀리면 "인증번호가 올바르지 않습니다"라는 에러 메시지를 보여줍니다.
+- 인증번호가 맞은 상태에서는 버튼을 비활성화하고 완료 상태를 유지합니다.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### API
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+API는 MSW(Mock Service Worker)를 이용하여 모킹되어 있습니다.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+아래에 정리된 API 명세를 참고해 기능을 구현해주세요.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+정확한 MSW 모킹 동작을 확인할 필요가 있다면, src/mocks/handlers.ts를 참고해주세요.
+
+POST /api/auth/send-verification
+
+Request 예시
 
 ```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+{ "phoneNumber": "010-9999-8888" }
 ```
+
+Response 예시
+
+```js
+// 성공 시
+{
+"success": true,
+"message": "인증번호가 발송되었습니다.",
+"data": {
+"phoneNumber": "010-9999-8888",
+"expiresAt": 12391293,
+},
+}
+```
+
+```js
+// 실패 시
+{
+"success": false,
+"message": "올바른 휴대폰 번호를 입력해주세요.",
+}
+```
+
+테스트 시 참고사항
+
+발급된 인증번호는 브라우저 콘솔 창에 아래와 같은 형식으로 보여집니다. 테스트 시 사용해주세요.
+
+```
+[MSW] ${phoneNumber}로 인증번호 ${verificationCode} 발송
+```
+
+POST /api/auth/verify-code
+
+Request 예시
+
+```js
+{
+"phoneNumber": "010-9999-8888",
+"code": "000999"
+}
+```
+
+Response 예시
+
+```js
+// 성공 시
+{
+"success": true,
+"message": "인증이 완료되었습니다.",
+"data": {
+"verified": true,
+}
+}
+```
+
+```js
+// 실패 시
+{
+"success": false,
+"message": "인증번호가 올바르지 않거나 만료되었습니다.",
+"data": {
+"verified": false,
+}
+}
+```
+
+구현 시 유의사항
+
+shadcn과 같은 UI 라이브러리를 사용하거나 기본 HTML 태그만을 이용해 개발해주세요.
+
+에러 메시지, 버튼 활성화 여부 등은 실시간으로 반응하도록 해주세요.
+
+시간 절약을 위해 필요에 따라 자주 사용하던 써드파티 라이브러리를 설치하여 사용하는 것을 권장합니다.
+
+TypeScript 기반의 프로젝트로, 타입 건전성을 지키는 방향으로 코드를 작성해주세요.
