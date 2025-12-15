@@ -24,6 +24,7 @@ export const useSendVerificationCode = () => {
       if (res.success) {
         return setIsSuccess(true)
       }
+      setIsSuccess(false)
       setMessage(res.message)
     } catch (error) {
       const _error = error as CommonResponse<void>
