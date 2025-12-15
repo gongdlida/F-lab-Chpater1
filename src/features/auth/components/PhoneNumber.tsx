@@ -32,8 +32,8 @@ export const PhoneNumber = ({
             setErrorMsg('올바른 번호를 입력해주세요.')
           if (isValidPhoneFormat(e.target.value) && errorMsg !== '')
             setErrorMsg('')
-          e.target.value = e.target.value.replace(/[^0-9-]/g, '')
-          setPhoneNumber(e.target.value)
+          const sanitize = e.target.value.replace(/[^0-9-]/g, '')
+          setPhoneNumber(sanitize)
         }}
         label='휴대폰 번호:'
         placeholder='휴대폰 번호를 입력해주세요.'
