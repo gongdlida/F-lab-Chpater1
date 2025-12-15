@@ -9,18 +9,18 @@ function App() {
   const [verificationCode, setVerificationCode] = useState('')
 
   const {
-    isSent,
+    isSuccess: isSent,
     sendVerificationCode,
     isLoading: isPhoneNumberSent,
-    error,
+    message: verificationCodeErrorMsg,
     reset: resetVerificationCodeStatus
   } = useSendVerificationCode()
 
   const {
     isLoading,
     verifyCode,
-    isVerified,
-    message,
+    isSuccess: isVerified,
+    message: verifyCodeResultMsg,
     error: verifyCodeError,
     resetVerifyCodeError,
     reset: resetVerifyCodeStatus
@@ -35,7 +35,7 @@ function App() {
         <PhoneNumber
           phoneNumber={phoneNumber}
           isSent={isSent}
-          error={error}
+          error={verificationCodeErrorMsg}
           reset={() => {
             resetVerificationCodeStatus()
             resetVerifyCodeStatus()
@@ -57,13 +57,13 @@ function App() {
             verifyCode={verifyCode}
           />
         )}
-        {isSent && message && (
+        {isSent && verifyCodeResultMsg && (
           <div
             className={`message ${
               isVerified ? MSG_TYPE.SUCCESS : MSG_TYPE.ERROR
             }`}
           >
-            {message}
+            {verifyCodeResultMsg}
           </div>
         )}
       </div>
