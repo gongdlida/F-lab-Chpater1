@@ -1,13 +1,17 @@
-import { useState } from 'react'
+import {
+  useState,
+  type ChangeEvent,
+  type Dispatch,
+  type SetStateAction
+} from 'react'
 import './App.css'
 import { PhoneNumber, VerificationCode } from '@/features/auth/components'
-import { MSG_TYPE } from '@/features/auth/type'
 import { useSendVerificationCode, useVerifyCode } from '@/features/auth/hooks'
 
 function App() {
   const [phoneNumber, setPhoneNumber] = useState('')
-  const [verificationCode, setVerificationCode] = useState('')
 
+  const [isShownError, setIsShownError] = useState(false)
   const {
     isSuccess: isSent,
     sendVerificationCode,
@@ -26,6 +30,9 @@ function App() {
     reset: resetVerifyCodeStatus
   } = useVerifyCode()
 
+  const phoneNumberErrorMsg = isShownError
+    ? verificationCodeErrorMsg || '올바른 번호를 입력해주세요.'
+    : ''
   return (
     <div className='app'>
       <h1>휴대폰 인증번호 테스트</h1>
@@ -35,36 +42,29 @@ function App() {
         <PhoneNumber
           phoneNumber={phoneNumber}
           isSent={isSent}
-          error={verificationCodeErrorMsg}
-          reset={() => {
-            resetVerificationCodeStatus()
-            resetVerifyCodeStatus()
-            setVerificationCode('')
+          error={phoneNumberErrorMsg}
+          onChangePhoneNumber={(event: ChangeEvent<HTMLInputElement>) => {
+            if (verificationCodeErrorMsg || isShownError || isSent) {
+              resetVerificationCodeStatus()
+              resetVerifyCodeStatus()
+            }
+            const sanitize = event.target.value.replace(/[^0-9-]/g, '')
+            checkValidFormat(sanitize, isShownError, setIsShownError)
+            setPhoneNumber(sanitize)
           }}
-          setPhoneNumber={setPhoneNumber}
-          sendVerificationCode={sendVerificationCode}
+          onSendVerificationCode={() => sendVerificationCode(phoneNumber)}
           isLoading={isPhoneNumberSent}
         />
         {isSent && (
           <VerificationCode
-            resetVerifyCode={resetVerifyCodeError}
             isVerified={isVerified}
+            onVerifyCode={verifyCode}
             verifyCodeError={verifyCodeError}
-            verificationCode={verificationCode}
-            setVerificationCode={setVerificationCode}
-            phoneNumber={phoneNumber}
+            resetVerifyCode={resetVerifyCodeError}
+            verifyCodeResultMsg={verifyCodeResultMsg}
             isLoading={isLoading}
-            verifyCode={verifyCode}
+            phoneNumber={phoneNumber}
           />
-        )}
-        {isSent && verifyCodeResultMsg && (
-          <div
-            className={`message ${
-              isVerified ? MSG_TYPE.SUCCESS : MSG_TYPE.ERROR
-            }`}
-          >
-            {verifyCodeResultMsg}
-          </div>
         )}
       </div>
 
@@ -82,3 +82,22 @@ function App() {
 }
 
 export default App
+
+const isValidPhoneFormat = (value: string) => {
+  const PHONE_REGEX = /^010-(\d{3}|\d{4})-\d{4}$/
+  return PHONE_REGEX.test(value)
+}
+
+const checkValidFormat = (
+  phoneNumber: string,
+  isShownError: boolean,
+  setIsShownError: Dispatch<SetStateAction<boolean>>
+) => {
+  if (phoneNumber.length < 10) return
+  if (isShownError && isValidPhoneFormat(phoneNumber))
+    return setIsShownError(false)
+  if (isShownError === false && isValidPhoneFormat(phoneNumber) === false)
+    return setIsShownError(true)
+
+  return
+}
