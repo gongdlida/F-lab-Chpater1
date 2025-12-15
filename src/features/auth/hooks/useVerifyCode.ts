@@ -3,13 +3,13 @@ import type {
   VerificationResponse,
   VerifyCodeParamsType
 } from '@/features/auth/type'
-import { http } from '@/lib/http'
+import { http, type CommonResponse } from '@/lib/http'
 
 export const useVerifyCode = () => {
   const [isLoading, setIsLoading] = useState(false)
-  const [isVerified, setIsVerified] = useState(false)
-  const [message, setMessage] = useState('')
+  const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState(false)
+  const [message, setMessage] = useState('')
 
   const reset = () => {
     setIsLoading(false)
@@ -33,16 +33,16 @@ export const useVerifyCode = () => {
 
       if (response.success) {
         setMessage(response.message)
-        setIsVerified(true)
+        setIsSuccess(true)
         return
       }
-
       setMessage(response.message)
-      setIsVerified(false)
+      setIsSuccess(false)
       setError(true)
-    } catch {
-      setMessage('서버 오류가 발생했습니다.')
-      setIsVerified(false)
+    } catch (error) {
+      const _error = error as CommonResponse<void>
+      setMessage(_error.message)
+      setIsSuccess(false)
       setError(true)
     } finally {
       setIsLoading(false)
@@ -51,7 +51,7 @@ export const useVerifyCode = () => {
 
   return {
     isLoading,
-    isVerified,
+    isSuccess,
     message,
     verifyCode,
     error,
