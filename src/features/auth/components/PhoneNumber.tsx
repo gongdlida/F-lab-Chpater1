@@ -8,6 +8,7 @@ interface PhoneNumberProps {
   sendVerificationCode: (phoneNumber: string) => Promise<void>
   error: string
   reset: () => void
+  isSent: boolean
 }
 
 export const PhoneNumber = ({
@@ -16,7 +17,8 @@ export const PhoneNumber = ({
   isLoading,
   sendVerificationCode,
   error,
-  reset
+  reset,
+  isSent
 }: PhoneNumberProps) => {
   const [isShownError, setIsShownError] = useState(false)
 
@@ -26,10 +28,9 @@ export const PhoneNumber = ({
         value={phoneNumber}
         maxLength={13}
         onChange={(e) => {
-          if (error) reset()
-          checkValidFormat(e.target.value, isShownError, setIsShownError)
-
+          if (error || isSent) reset()
           const sanitize = e.target.value.replace(/[^0-9-]/g, '')
+          checkValidFormat(e.target.value, isShownError, setIsShownError)
           setPhoneNumber(sanitize)
         }}
         label='휴대폰 번호:'

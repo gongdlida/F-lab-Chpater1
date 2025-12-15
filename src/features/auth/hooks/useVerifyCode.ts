@@ -11,6 +11,11 @@ export const useVerifyCode = () => {
   const [message, setMessage] = useState('')
   const [error, setError] = useState(false)
 
+  const reset = () => {
+    setIsLoading(false)
+    setMessage('')
+    setError(false)
+  }
   const resetVerifyCodeError = () => {
     setError(false)
   }
@@ -50,6 +55,7 @@ export const useVerifyCode = () => {
     message,
     verifyCode,
     error,
-    resetVerifyCodeError
+    resetVerifyCodeError,
+    reset
   }
 }
