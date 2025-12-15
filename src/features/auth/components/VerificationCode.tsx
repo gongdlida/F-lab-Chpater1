@@ -32,13 +32,13 @@ export const VerificationCode = ({
         placeholder='6자리 인증번호'
         disabled={isLoading}
         maxLength={6}
-        id='verificationCode'
+        id='verification-code'
         type='text'
         value={verificationCode}
         onChange={(e) => {
           if (verifyCodeError) resetVerifyCode()
-          e.target.value = e.target.value.replace(/[^0-9]/g, '')
-          setVerificationCode(e.target.value)
+          const sanitize = e.target.value.replace(/[^0-9]/g, '')
+          setVerificationCode(sanitize)
         }}
       />
 

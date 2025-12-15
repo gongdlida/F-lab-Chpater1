@@ -9,20 +9,21 @@ function App() {
   const [verificationCode, setVerificationCode] = useState('')
 
   const {
-    isSent,
+    isSuccess: isSent,
     sendVerificationCode,
     isLoading: isPhoneNumberSent,
-    error,
-    reset
+    message: verificationCodeErrorMsg,
+    reset: resetVerificationCodeStatus
   } = useSendVerificationCode()
 
   const {
     isLoading,
     verifyCode,
-    isVerified,
-    message,
+    isSuccess: isVerified,
+    message: verifyCodeResultMsg,
     error: verifyCodeError,
-    resetVerifyCodeError
+    resetVerifyCodeError,
+    reset: resetVerifyCodeStatus
   } = useVerifyCode()
 
   return (
@@ -33,8 +34,13 @@ function App() {
       <div className='form-container'>
         <PhoneNumber
           phoneNumber={phoneNumber}
-          error={error}
-          reset={reset}
+          isSent={isSent}
+          error={verificationCodeErrorMsg}
+          reset={() => {
+            resetVerificationCodeStatus()
+            resetVerifyCodeStatus()
+            setVerificationCode('')
+          }}
           setPhoneNumber={setPhoneNumber}
           sendVerificationCode={sendVerificationCode}
           isLoading={isPhoneNumberSent}
@@ -51,13 +57,13 @@ function App() {
             verifyCode={verifyCode}
           />
         )}
-        {message && (
+        {isSent && verifyCodeResultMsg && (
           <div
             className={`message ${
               isVerified ? MSG_TYPE.SUCCESS : MSG_TYPE.ERROR
             }`}
           >
-            {message}
+            {verifyCodeResultMsg}
           </div>
         )}
       </div>

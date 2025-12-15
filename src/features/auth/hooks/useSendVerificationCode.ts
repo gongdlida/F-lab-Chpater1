@@ -4,17 +4,17 @@ import type { VerificationResponse } from '@/features/auth/type'
 
 export const useSendVerificationCode = () => {
   const [isLoading, setIsLoading] = useState(false)
-  const [isSent, setIsSent] = useState(false)
-  const [error, setError] = useState<string>('')
+  const [isSuccess, setIsSuccess] = useState(false)
+  const [message, setMessage] = useState<string>('')
 
   const reset = () => {
-    setIsSent(false)
-    setError('')
+    setIsSuccess(false)
+    setMessage('')
   }
 
   const sendVerificationCode = async (phoneNumber: string) => {
     setIsLoading(true)
-    setError('')
+    setMessage('')
     try {
       const res = await http.post<
         { phoneNumber: string },
@@ -22,13 +22,14 @@ export const useSendVerificationCode = () => {
       >('/api/auth/send-verification', { phoneNumber })
 
       if (res.success) {
-        return setIsSent(true)
+        return setIsSuccess(true)
       }
-      setError(res.message)
+      setIsSuccess(false)
+      setMessage(res.message)
     } catch (error) {
       const _error = error as CommonResponse<void>
-      setIsSent(false)
-      setError(_error.message)
+      setIsSuccess(false)
+      setMessage(_error.message)
     } finally {
       setIsLoading(false)
     }
@@ -36,8 +37,8 @@ export const useSendVerificationCode = () => {
 
   return {
     isLoading,
-    isSent,
-    error,
+    isSuccess,
+    message,
     sendVerificationCode,
     reset
   }

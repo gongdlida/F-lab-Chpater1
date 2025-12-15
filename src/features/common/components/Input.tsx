@@ -1,4 +1,4 @@
-import type { ChangeEvent, InputHTMLAttributes } from 'react'
+import { useId, type ChangeEvent, type InputHTMLAttributes } from 'react'
 import { ErrorMsg } from '@/features/common/components'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -17,11 +17,14 @@ export const Input = ({
   label,
   ...props
 }: InputProps) => {
+  const reactId = useId()
+  const id = props.id || reactId
+
   return (
     <div className='form-group'>
-      {label && <label htmlFor={label}>{label}</label>}
+      {label && <label htmlFor={id}>{label}</label>}
       <input
-        id={label}
+        id={id}
         type='text'
         value={value}
         onChange={onChange}

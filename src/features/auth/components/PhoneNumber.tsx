@@ -1,4 +1,4 @@
-import { useDeferredValue, useState } from 'react'
+import { useState, type Dispatch, type SetStateAction } from 'react'
 import { Input, Button, ErrorMsg } from '@/features/common/components'
 
 interface PhoneNumberProps {
@@ -8,6 +8,7 @@ interface PhoneNumberProps {
   sendVerificationCode: (phoneNumber: string) => Promise<void>
   error: string
   reset: () => void
+  isSent: boolean
 }
 
 export const PhoneNumber = ({
@@ -16,34 +17,33 @@ export const PhoneNumber = ({
   isLoading,
   sendVerificationCode,
   error,
-  reset
+  reset,
+  isSent
 }: PhoneNumberProps) => {
-  const [errorMsg, setErrorMsg] = useState('')
-  const deferredQuery = useDeferredValue(phoneNumber)
-  const hasError = errorMsg !== '' || error !== ''
+  const [isShownError, setIsShownError] = useState(false)
+
   return (
     <div className='form-group' style={{ flex: 1 }}>
       <Input
         value={phoneNumber}
         maxLength={13}
         onChange={(e) => {
-          if (error) reset()
-          if (errorMsg === '' && isValidPhoneFormat(e.target.value) === false)
-            setErrorMsg('올바른 번호를 입력해주세요.')
-          if (isValidPhoneFormat(e.target.value) && errorMsg !== '')
-            setErrorMsg('')
+          if (error || isSent) reset()
           const sanitize = e.target.value.replace(/[^0-9-]/g, '')
+          checkValidFormat(e.target.value, isShownError, setIsShownError)
           setPhoneNumber(sanitize)
         }}
         label='휴대폰 번호:'
         placeholder='휴대폰 번호를 입력해주세요.'
       />
       <div style={{ height: '1.5rem' }}>
-        <ErrorMsg errorMsg={error || errorMsg} />
+        <ErrorMsg
+          errorMsg={isShownError ? error || '올바른 번호를 입력해주세요.' : ''}
+        />
       </div>
       <Button
         onClick={() => sendVerificationCode(phoneNumber)}
-        disabled={isLoading || !isValidPhoneFormat(deferredQuery) || hasError}
+        disabled={!phoneNumber || isLoading || isShownError}
         className='send-button'
         buttonText={isLoading ? '전송 중...' : '인증번호 발송'}
       />
@@ -54,6 +54,19 @@ export const PhoneNumber = ({
 const isValidPhoneFormat = (value: string) => {
   const PHONE_REGEX = /^010-(\d{3}|\d{4})-\d{4}$/
   return PHONE_REGEX.test(value)
+}
+
+const checkValidFormat = (
+  phoneNumber: string,
+  isShownError: boolean,
+  setIsShownError: Dispatch<SetStateAction<boolean>>
+) => {
+  if (isShownError && isValidPhoneFormat(phoneNumber))
+    return setIsShownError(false)
+  if (isShownError === false && isValidPhoneFormat(phoneNumber) === false)
+    return setIsShownError(true)
+
+  return
 }
 
 /*
